@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { login, register } from "../../controllers/user-sevices/userController";
+import { verifyToken } from "../../middleware/auth";
 
 let router = express.Router();
 
@@ -28,6 +29,13 @@ router.post("/login", async (req: Request, res: Response) => {
     res.status(400);
     res.end(err.message);
   }
+});
+
+router.get("/verifyToken", verifyToken, async (req: Request, res: Response) => {
+  res.status(200);
+  res.json({
+    valid: true,
+  });
 });
 
 export { router as authRouter };
