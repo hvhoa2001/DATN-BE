@@ -104,3 +104,21 @@ export async function getUserProfile(req: ExtendedRequest) {
     throw error;
   }
 }
+
+export async function checkEmail(req: ExtendedRequest) {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return false;
+    }
+    const existedEmail = await AuthModel.findOne({
+      email: email,
+    });
+    if (existedEmail) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    throw error;
+  }
+}

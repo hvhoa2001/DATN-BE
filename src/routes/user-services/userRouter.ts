@@ -3,7 +3,7 @@ import { ExtendedRequest } from "../../controllers/type";
 import {
   getUserName,
   getUserProfile,
-} from "../../controllers/user-sevices/userController";
+} from "../../controllers/user-services/userController";
 import { verifyToken } from "../../middleware/auth";
 
 const router = express.Router();

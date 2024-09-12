@@ -1,5 +1,9 @@
 import express, { Request, Response } from "express";
-import { login, register } from "../../controllers/user-sevices/userController";
+import {
+  checkEmail,
+  login,
+  register,
+} from "../../controllers/user-services/userController";
 import { verifyToken } from "../../middleware/auth";
 
 let router = express.Router();
@@ -36,6 +40,30 @@ router.get("/verifyToken", verifyToken, async (req: Request, res: Response) => {
   res.json({
     valid: true,
   });
+});
+
+router.get("/checkEmail", async (req: Request, res: Response) => {
+  try {
+    const result = await checkEmail(req);
+    if (result) {
+      res.json({
+        valid: true,
+        message: "Email is valid",
+      });
+    } else {
+      res.json({
+        valid: false,
+        message: "Email existed in other account",
+      });
+    }
+  } catch (error) {
+    let message = "Unknown Error";
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    res.status(404);
+    res.end(message);
+  }
 });
 
 export { router as authRouter };
