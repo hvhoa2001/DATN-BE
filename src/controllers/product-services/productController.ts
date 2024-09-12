@@ -1,6 +1,10 @@
-import { ProductModel } from "../../models/Product/ProductSchema";
+import { Request } from "express";
+import { IProduct, ProductModel } from "../../models/Product/ProductSchema";
+import { ExtendedRequest } from "../type";
+import { AuthModel, IAuthUser } from "../../models/AuthSchema";
+import { v4 as uuidv4 } from "uuid";
 
-export async function getAllProducts() {
+export async function getAllProducts(req: Request) {
   const res = await ProductModel.find();
   return (
     res.map((item) => {
@@ -17,4 +21,40 @@ export async function getAllProducts() {
       };
     }) || []
   );
+}
+
+export async function createNewProduct(request: ExtendedRequest) {
+  try {
+    const { userVerifiedData } = request;
+    const { name, description, variants, status, image, category, createdAt } =
+      request.body;
+
+    if (!(name && variants && status && image && category)) {
+      throw Error("Missing information");
+    }
+    const author: IAuthUser | null = await AuthModel.findOne({
+      userId: userVerifiedData?.userId,
+    });
+
+    if (!author) {
+      throw Error("Wrong author ID");
+    }
+    const productId = uuidv4();
+
+    const newProduct: IProduct = new ProductModel({
+      _id: productId,
+      name: String(name).slice(0, 100),
+      description: String(description).slice(0, 1000),
+      variants,
+      status,
+      image,
+      category,
+      createdAt,
+      updatedAt: new Date(),
+    });
+    await newProduct.save();
+    return productId;
+  } catch (error) {
+    throw error;
+  }
 }

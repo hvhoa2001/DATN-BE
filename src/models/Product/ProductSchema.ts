@@ -14,7 +14,7 @@ export type TVariants = {
 };
 
 export interface IProduct extends Document {
-  _id: number;
+  _id: string;
   name: string;
   description: string;
   variants: TVariants;
@@ -26,7 +26,7 @@ export interface IProduct extends Document {
 }
 
 const ProductSchema: Schema = new Schema<IProduct>({
-  _id: { type: Number, required: true },
+  _id: { type: String, required: true },
   name: { type: String, required: true },
   description: { type: String, required: true },
   variants: { type: Schema.Types.Mixed, required: true },

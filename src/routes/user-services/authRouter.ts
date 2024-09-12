@@ -6,7 +6,7 @@ import {
 } from "../../controllers/user-services/userController";
 import { verifyToken } from "../../middleware/auth";
 
-let router = express.Router();
+const router = express.Router();
 
 router.post("/register", async (req: Request, res: Response) => {
   try {
