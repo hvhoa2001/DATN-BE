@@ -19,6 +19,8 @@ export interface IProduct extends Document {
   description: string;
   variants: TVariants;
   status: string;
+  price: number;
+  highlight: string;
   image: Array<string> | undefined;
   category: string;
   createdAt: Date;
@@ -31,6 +33,8 @@ const ProductSchema: Schema = new Schema<IProduct>({
   description: { type: String, required: true },
   variants: { type: Schema.Types.Mixed, required: true },
   status: { type: String, required: true },
+  price: { type: Number, required: true },
+  highlight: { type: String, required: false },
   image: { type: Array<String>, required: true, default: [] },
   category: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },

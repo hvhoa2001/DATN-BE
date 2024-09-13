@@ -18,6 +18,8 @@ export async function getAllProducts(req: Request) {
         category: item.category,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
+        price: item.price,
+        highlight: item.highlight,
       };
     }) || []
   );
@@ -26,8 +28,17 @@ export async function getAllProducts(req: Request) {
 export async function createNewProduct(request: ExtendedRequest) {
   try {
     const { userVerifiedData } = request;
-    const { name, description, variants, status, image, category, createdAt } =
-      request.body;
+    const {
+      name,
+      description,
+      variants,
+      status,
+      image,
+      category,
+      createdAt,
+      price,
+      highlight,
+    } = request.body;
 
     if (!(name && variants && status && image && category)) {
       throw Error("Missing information");
@@ -45,6 +56,8 @@ export async function createNewProduct(request: ExtendedRequest) {
       _id: productId,
       name: String(name).slice(0, 100),
       description: String(description).slice(0, 1000),
+      price,
+      highlight,
       variants,
       status,
       image,
