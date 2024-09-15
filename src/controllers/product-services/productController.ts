@@ -27,7 +27,7 @@ export async function getAllProducts(req: Request) {
 
 export async function createNewProduct(request: ExtendedRequest) {
   try {
-    const { userVerifiedData } = request;
+    const { userVerifiedData, productVerifiedData } = request;
     const {
       name,
       description,
@@ -46,6 +46,13 @@ export async function createNewProduct(request: ExtendedRequest) {
     const author: IAuthUser | null = await AuthModel.findOne({
       userId: userVerifiedData?.userId,
     });
+
+    const existingProduct = await ProductModel.findOne({
+      _id: productVerifiedData?.productId,
+    });
+    if (existingProduct) {
+      throw Error("Product already exists");
+    }
 
     if (!author) {
       throw Error("Wrong author ID");

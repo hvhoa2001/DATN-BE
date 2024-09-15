@@ -6,6 +6,7 @@ import { userRouter } from "./src/routes/user-services/userRouter";
 import connectMongoDB from "./connect";
 import cors from "cors";
 import { productRouter } from "./src/routes/product-services/productRouter";
+import { reviewRouter } from "./src/routes/reviews-services/reivewsRouter";
 
 const app = express();
 const port = process.env.PORT;
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ limit: "5mb" }));
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/product", productRouter);
+app.use("reviews", reviewRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).send("Hello, world!");
