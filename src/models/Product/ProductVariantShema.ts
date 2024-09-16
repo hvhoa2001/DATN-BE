@@ -7,7 +7,7 @@ export type TSize = {
 };
 
 export interface IProductVariant extends Document {
-  variantId: number;
+  _id: number;
   productId: number;
   variantName: string;
   sizes: TSize;
@@ -17,7 +17,7 @@ export interface IProductVariant extends Document {
 }
 
 const ProductVariantSchemaL: Schema = new Schema<IProductVariant>({
-  variantId: { type: Number, required: true },
+  _id: { type: Number, required: true },
   productId: { type: Number, required: true },
   variantName: { type: String, required: true },
   sizes: {

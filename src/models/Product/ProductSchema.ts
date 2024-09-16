@@ -23,6 +23,8 @@ export interface IProduct extends Document {
   highlight: string;
   image: Array<string> | undefined;
   category: string;
+  style: string;
+  madeIn: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,6 +39,8 @@ const ProductSchema: Schema = new Schema<IProduct>({
   highlight: { type: String, required: false },
   image: { type: Array<String>, required: true, default: [] },
   category: { type: String, required: true },
+  style: { type: String, required: true },
+  madeIn: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, required: false },
 });

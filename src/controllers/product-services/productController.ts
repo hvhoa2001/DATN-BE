@@ -46,6 +46,8 @@ export async function getProductDetail(req: ExtendedRequest) {
       updatedAt: productDetail.updatedAt,
       price: productDetail.price,
       highlight: productDetail.highlight,
+      style: productDetail.style,
+      madeIn: productDetail.madeIn,
     };
   } catch (error) {
     throw error;
@@ -65,6 +67,8 @@ export async function createNewProduct(request: ExtendedRequest) {
       createdAt,
       price,
       highlight,
+      style,
+      madeIn,
     } = request.body;
 
     if (!(name && variants && status && image && category)) {
@@ -96,6 +100,8 @@ export async function createNewProduct(request: ExtendedRequest) {
       status,
       image,
       category,
+      style,
+      madeIn,
       createdAt,
       updatedAt: new Date(),
     });
