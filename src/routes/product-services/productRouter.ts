@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import {
   createNewProduct,
   getAllProducts,
+  getProductDetail,
 } from "../../controllers/product-services/productController";
 import { verifyToken } from "../../middleware/auth";
 import { ExtendedRequest } from "../../controllers/type";
@@ -38,6 +39,21 @@ router.get("/getAllProducts", async (req: Request, res: Response) => {
     }
     res.statusMessage = message;
     res.status(400).end();
+  }
+});
+
+router.get("/product-detail", async (req: ExtendedRequest, res: Response) => {
+  try {
+    const productDetail = await getProductDetail(req);
+    res.status(200);
+    res.json(productDetail);
+  } catch (error) {
+    let message = "Unknown Error";
+    res.status(400);
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    res.send(message);
   }
 });
 

@@ -25,6 +25,33 @@ export async function getAllProducts(req: Request) {
   );
 }
 
+export async function getProductDetail(req: ExtendedRequest) {
+  try {
+    const { productId } = req.query;
+    const productDetail = await ProductModel.findOne({
+      _id: productId,
+    });
+    if (!productDetail) {
+      throw Error("Product not found");
+    }
+    return {
+      productId: productDetail._id,
+      name: productDetail.name,
+      description: productDetail.description,
+      variants: productDetail.variants,
+      status: productDetail.status,
+      image: productDetail.image,
+      category: productDetail.category,
+      createdAt: productDetail.createdAt,
+      updatedAt: productDetail.updatedAt,
+      price: productDetail.price,
+      highlight: productDetail.highlight,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function createNewProduct(request: ExtendedRequest) {
   try {
     const { userVerifiedData, productVerifiedData } = request;

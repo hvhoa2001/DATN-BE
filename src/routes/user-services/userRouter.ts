@@ -14,7 +14,7 @@ router.get("/profile/:userId", async (req: ExtendedRequest, res: Response) => {
     res.status(200);
     res.json(userData);
   } catch (error) {
-    let message = "Unknow Error";
+    let message = "Unknown Error";
     res.status(400);
     if (error instanceof Error) {
       message = error.message;
