@@ -26,7 +26,8 @@ export async function getAllReviews(request: ExtendedRequest) {
 
 export async function createNewReview(request: ExtendedRequest) {
   try {
-    const { userVerifiedData, productVerifiedData } = request;
+    const { userVerifiedData, reviewVerifiedData, productVerifiedData } =
+      request;
     const { comment, rating, title, userId, createdAt } = request.body;
 
     const author = await getUserName(userId);
@@ -36,12 +37,15 @@ export async function createNewReview(request: ExtendedRequest) {
     }
 
     const existingReview = await ReviewModel.findOne({
-      userId: userVerifiedData?.userId,
-      productId: productVerifiedData?.productId,
+      _id: reviewVerifiedData?.reviewId,
     });
 
     if (existingReview) {
       throw Error("Review already exists");
+    }
+
+    if (!author) {
+      throw Error("Wrong author ID");
     }
 
     const reviewId = uuidv4();

@@ -9,6 +9,7 @@ export type TSize = {
 export type TVariants = {
   _id: string;
   color: string;
+  preview: string;
   image: Array<string> | undefined;
   sizes: TSize;
 };
@@ -25,8 +26,8 @@ export interface IProduct extends Document {
   category: string;
   style: string;
   madeIn: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
+  updatedAt: number;
 }
 
 const ProductSchema: Schema = new Schema<IProduct>({
@@ -41,8 +42,8 @@ const ProductSchema: Schema = new Schema<IProduct>({
   category: { type: String, required: true },
   style: { type: String, required: true },
   madeIn: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, required: false },
+  createdAt: { type: Number, default: Date.now },
+  updatedAt: { type: Number, required: false },
 });
 
 export const ProductModel = model<IProduct>("Product", ProductSchema);

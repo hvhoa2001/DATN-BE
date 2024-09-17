@@ -17,13 +17,9 @@ router.post(
       const createdProduct = await createNewProduct(req);
       res.send({ productId: createdProduct });
       res.end();
-    } catch (error) {
-      let message = "Unknow error";
-      if (error instanceof Error) {
-        message = error.message;
-      }
-      res.statusMessage = message;
-      res.status(400).send({ message });
+    } catch (err: any) {
+      res.status(400);
+      res.end(err.message);
     }
   }
 );

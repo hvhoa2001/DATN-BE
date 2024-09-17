@@ -7,4 +7,10 @@ export type ExtendedRequest = Request & {
   productVerifiedData?: {
     productId: string;
   };
+  reviewVerifiedData?: {
+    reviewId: string;
+  };
+  favoriteVerifiedData?: {
+    favoriteId: string;
+  };
 };
