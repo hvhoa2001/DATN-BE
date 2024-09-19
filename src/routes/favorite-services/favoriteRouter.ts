@@ -14,11 +14,14 @@ router.post(
   async (req: ExtendedRequest, res: Response) => {
     try {
       const createdFavorite = await createNewFavorite(req);
-      res.send({ favoriteId: createdFavorite });
-      res.end();
+      res.json({
+        favoriteId: createdFavorite.favoriteId,
+        productId: createdFavorite.productId,
+        name: createdFavorite.name,
+        price: createdFavorite.price,
+      });
     } catch (err: any) {
-      res.status(400);
-      res.end(err.message);
+      res.status(400).end(err.message);
     }
   }
 );

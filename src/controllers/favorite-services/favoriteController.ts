@@ -11,9 +11,10 @@ export async function getAllFavorites(request: ExtendedRequest) {
   return (
     res.map((item) => {
       return {
+        productId: item.productId,
         name: item.name,
-        color: item.color,
-        size: item.size,
+        // color: item.color,
+        // size: item.size,
         price: item.price,
         image: item.image,
       };
@@ -23,20 +24,19 @@ export async function getAllFavorites(request: ExtendedRequest) {
 
 export async function createNewFavorite(request: ExtendedRequest) {
   try {
-    const { userVerifiedData, productVerifiedData, favoriteVerifiedData } =
-      request;
-    const { name, color, size, price, image } = request.body;
+    const { userVerifiedData } = request;
+    const { name, price, image, productId } = request.body;
 
     const author: IAuthUser | null = await AuthModel.findOne({
       userId: userVerifiedData?.userId,
     });
 
-    if (!(name && color && size && price && image)) {
+    if (!(name && price && image)) {
       throw Error("Missing information");
     }
 
     const existingFavorite = await FavoriteModel.findOne({
-      _id: favoriteVerifiedData?.favoriteId,
+      productId: productId,
     });
 
     if (existingFavorite) {
@@ -51,15 +51,13 @@ export async function createNewFavorite(request: ExtendedRequest) {
     const newFavorite: IFavorite = new FavoriteModel({
       _id: favoriteId,
       userId: userVerifiedData?.userId,
-      productId: productVerifiedData?.productId,
+      productId,
       name,
-      color,
-      size,
       price,
       image,
     });
     await newFavorite.save();
-    return { favoriteId };
+    return { favoriteId, name, price, image, productId };
   } catch (error) {
     throw error;
   }

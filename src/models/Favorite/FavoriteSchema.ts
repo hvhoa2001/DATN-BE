@@ -5,8 +5,8 @@ export interface IFavorite extends Document {
   userId: string;
   productId: string;
   name: string;
-  color: string;
-  size: number;
+  // color: string;
+  // size: number;
   price: number;
   image: string;
 }
@@ -16,8 +16,8 @@ const FavoriteSchema: Schema = new Schema<IFavorite>({
   userId: { type: String, required: true },
   productId: { type: String, required: true },
   name: { type: String, required: true },
-  color: { type: String, required: true },
-  size: { type: Number, required: true },
+  // color: { type: String, required: true },
+  // size: { type: Number, required: true },
   price: { type: Number, required: true },
   image: { type: String, required: true },
 });
