@@ -3,6 +3,7 @@ import { verifyToken } from "../../middleware/auth";
 import { ExtendedRequest } from "../../controllers/type";
 import {
   createNewFavorite,
+  deleteFavoriteItem,
   getAllFavorites,
 } from "../../controllers/favorite-services/favoriteController";
 
@@ -40,6 +41,19 @@ router.get(
       }
       res.status(404);
       res.end(message);
+    }
+  }
+);
+
+router.delete(
+  "/delete-favorite-item",
+  verifyToken,
+  async (req: ExtendedRequest, res: Response) => {
+    try {
+      const result = await deleteFavoriteItem(req);
+      res.send(result);
+    } catch (error: any) {
+      res.status(400).end(error.message);
     }
   }
 );

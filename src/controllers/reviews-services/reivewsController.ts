@@ -26,8 +26,7 @@ export async function getAllReviews(request: ExtendedRequest) {
 
 export async function createNewReview(request: ExtendedRequest) {
   try {
-    const { userVerifiedData, reviewVerifiedData, productVerifiedData } =
-      request;
+    const { productId } = request.query;
     const { comment, rating, title, userId, createdAt } = request.body;
 
     const author = await getUserName(userId);
@@ -37,7 +36,7 @@ export async function createNewReview(request: ExtendedRequest) {
     }
 
     const existingReview = await ReviewModel.findOne({
-      _id: reviewVerifiedData?.reviewId,
+      productId: productId,
     });
 
     if (existingReview) {
@@ -54,8 +53,8 @@ export async function createNewReview(request: ExtendedRequest) {
       title: String(title).slice(0, 100),
       comment: String(comment).slice(0, 1000),
       rating: rating,
-      userId: userVerifiedData?.userId,
-      productId: productVerifiedData?.productId,
+      userId: userId,
+      productId: productId,
       author: author.userName,
       createdAt,
     });

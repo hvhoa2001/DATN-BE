@@ -62,3 +62,24 @@ export async function createNewFavorite(request: ExtendedRequest) {
     throw error;
   }
 }
+
+export async function deleteFavoriteItem(request: ExtendedRequest) {
+  try {
+    const { productId } = request.query;
+    if (!productId) {
+      throw Error("Product is not defined");
+    }
+    const deletedItem = await FavoriteModel.findOneAndDelete({ productId });
+
+    if (!deletedItem) {
+      throw new Error(`No favorite item found with product ID: ${productId}`);
+    }
+
+    return {
+      success: true,
+      message: "Favorite item deleted successfully",
+    };
+  } catch (error) {
+    throw error;
+  }
+}
