@@ -1,13 +1,20 @@
 import { IReview, ReviewModel } from "../../models/Reviews/ReviewSchema";
 import { ExtendedRequest } from "../type";
 import { v4 as uuidv4 } from "uuid";
-import { getUserName } from "../user-services/userController";
+import { AuthModel, IAuthUser } from "../../models/AuthSchema";
 
 export async function getAllReviews(request: ExtendedRequest) {
-  const { productVerifiedData } = request;
+  const { productId } = request.query;
+  if (!productId) {
+    throw Error("Product is not defined");
+  }
   const res = await ReviewModel.find({
-    productId: productVerifiedData?.productId,
+    productId: productId,
   });
+
+  const averageRating =
+    res.reduce((sum, item) => sum + item.rating, 0) / res.length;
+
   return (
     res.map((item) => {
       return {
@@ -18,6 +25,8 @@ export async function getAllReviews(request: ExtendedRequest) {
         author: item.author,
         comment: item.comment,
         rating: item.rating,
+        ratingAverage: averageRating,
+        numberOfReviews: res.length,
         createdAt: item.createdAt,
       };
     }) || []
@@ -26,10 +35,13 @@ export async function getAllReviews(request: ExtendedRequest) {
 
 export async function createNewReview(request: ExtendedRequest) {
   try {
-    const { productId } = request.query;
-    const { comment, rating, title, userId, createdAt } = request.body;
+    const { userVerifiedData } = request;
 
-    const author = await getUserName(userId);
+    const { comment, rating, title, productId, createdAt } = request.body;
+
+    const author: IAuthUser | null = await AuthModel.findOne({
+      userId: userVerifiedData?.userId,
+    });
 
     if (!(comment && rating && title)) {
       throw Error("Missing information");
@@ -53,8 +65,8 @@ export async function createNewReview(request: ExtendedRequest) {
       title: String(title).slice(0, 100),
       comment: String(comment).slice(0, 1000),
       rating: rating,
-      userId: userId,
-      productId: productId,
+      userId: userVerifiedData?.userId,
+      productId,
       author: author.userName,
       createdAt,
     });
