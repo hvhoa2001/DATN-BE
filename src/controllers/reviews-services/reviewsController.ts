@@ -1,6 +1,5 @@
 import { IReview, ReviewModel } from "../../models/Reviews/ReviewSchema";
 import { ExtendedRequest } from "../type";
-import { v4 as uuidv4 } from "uuid";
 import { AuthModel, IAuthUser } from "../../models/AuthSchema";
 
 export async function getAllReviews(request: ExtendedRequest) {
@@ -8,36 +7,41 @@ export async function getAllReviews(request: ExtendedRequest) {
   if (!productId) {
     throw Error("Product is not defined");
   }
-  const res = await ReviewModel.find({
+  const res = await ReviewModel.findOne({
     productId: productId,
   });
 
-  const averageRating =
-    res.reduce((sum, item) => sum + item.rating, 0) / res.length;
+  let numberOfReviews = 0;
+  let averageRating = 0;
 
-  return (
-    res.map((item) => {
-      return {
-        reviewId: item._id,
-        productId: item.productId,
-        userId: item.userId,
-        title: item.title,
-        author: item.author,
-        comment: item.comment,
-        rating: item.rating,
-        ratingAverage: averageRating,
-        numberOfReviews: res.length,
-        createdAt: item.createdAt,
-      };
-    }) || []
-  );
+  if (res?.review && Array.isArray(res.review)) {
+    numberOfReviews = res.review.length;
+    if (numberOfReviews > 0) {
+      averageRating =
+        res.review.reduce((sum, item) => sum + (item.rating || 0), 0) /
+        numberOfReviews;
+    }
+  }
+
+  return {
+    productId: res?.productId,
+    ratingAverage: averageRating,
+    numberOfReviews: numberOfReviews,
+    review: res?.review,
+  };
 }
 
 export async function createNewReview(request: ExtendedRequest) {
   try {
     const { userVerifiedData } = request;
-
-    const { comment, rating, title, productId, createdAt } = request.body;
+    const {
+      comment,
+      rating,
+      title,
+      productId,
+      numberOfReviews,
+      ratingAverage,
+    } = request.body;
 
     const author: IAuthUser | null = await AuthModel.findOne({
       userId: userVerifiedData?.userId,
@@ -51,26 +55,42 @@ export async function createNewReview(request: ExtendedRequest) {
       productId: productId,
     });
 
-    if (existingReview) {
-      throw Error("Review already exists");
-    }
-
     if (!author) {
       throw Error("Wrong author ID");
     }
-
-    const reviewId = uuidv4();
-    const newReview: IReview = new ReviewModel({
-      _id: reviewId,
-      title: String(title).slice(0, 100),
-      comment: String(comment).slice(0, 1000),
-      rating: rating,
-      userId: userVerifiedData?.userId,
-      productId,
-      author: author.userName,
-      createdAt,
-    });
-    await newReview.save();
+    if (existingReview) {
+      await ReviewModel.findOneAndUpdate(
+        { productId: productId },
+        {
+          $push: {
+            review: {
+              userId: userVerifiedData?.userId,
+              author: author.userName,
+              title,
+              comment,
+              rating,
+              createdAt: Date.now(),
+            },
+          },
+        },
+        { new: true }
+      );
+    } else {
+      const newReview: IReview = new ReviewModel({
+        productId,
+        numberOfReviews,
+        ratingAverage,
+        review: {
+          userId: userVerifiedData?.userId,
+          author: author.userName,
+          title,
+          comment,
+          rating,
+          createdAt: Date.now(),
+        },
+      });
+      await newReview.save();
+    }
   } catch (error) {
     throw error;
   }
