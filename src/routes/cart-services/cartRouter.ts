@@ -1,7 +1,10 @@
 import express, { Response } from "express";
 import { verifyToken } from "../../middleware/auth";
 import { ExtendedRequest } from "../../controllers/type";
-import { createCartItem } from "../../controllers/cart-services/cartController";
+import {
+  createCartItem,
+  getCartItems,
+} from "../../controllers/cart-services/cartController";
 
 const router = express.Router();
 
@@ -20,6 +23,24 @@ router.post(
       }
       res.statusMessage = message;
       res.status(400).send({ message });
+    }
+  }
+);
+
+router.get(
+  "/get-cart-items",
+  verifyToken,
+  async (req: ExtendedRequest, res: Response) => {
+    try {
+      const result = await getCartItems(req);
+      res.send(result);
+    } catch (err: any) {
+      let message = "Unknown error";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      res.statusMessage = message;
+      res.status(400).end();
     }
   }
 );

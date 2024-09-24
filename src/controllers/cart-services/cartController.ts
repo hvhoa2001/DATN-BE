@@ -30,6 +30,7 @@ export async function createCartItem(request: ExtendedRequest) {
     }
 
     const newCartItem: ICart = new CartModel({
+      userId: userVerifiedData?.userId,
       productId,
       name,
       price,
@@ -43,4 +44,21 @@ export async function createCartItem(request: ExtendedRequest) {
   } catch (error) {
     throw error;
   }
+}
+
+export async function getCartItems(request: ExtendedRequest) {
+  const { userVerifiedData } = request;
+  const res = await CartModel.find({
+    userId: userVerifiedData?.userId,
+  });
+  return res.map((item) => {
+    return {
+      productId: item.productId,
+      name: item.name,
+      price: item.price,
+      color: item.color,
+      size: item.size,
+      quantity: item.quantity,
+    };
+  });
 }

@@ -1,6 +1,7 @@
 import { Document, model, Schema } from "mongoose";
 
 export interface ICart extends Document {
+  userId: string;
   productId: string;
   name: string;
   price: number;
@@ -11,6 +12,7 @@ export interface ICart extends Document {
 }
 
 const CartSchema: Schema = new Schema<ICart>({
+  userId: { type: String, required: true },
   productId: { type: String, required: true },
   name: { type: String, required: true },
   price: { type: Number, required: true },
