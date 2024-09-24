@@ -59,6 +59,7 @@ export async function getCartItems(request: ExtendedRequest) {
       color: item.color,
       size: item.size,
       quantity: item.quantity,
+      image: item.image,
     };
   });
 }
