@@ -13,8 +13,8 @@ export async function getAllFavorites(request: ExtendedRequest) {
       return {
         productId: item.productId,
         name: item.name,
-        // color: item.color,
-        // size: item.size,
+        color: item.color,
+        size: item.size,
         price: item.price,
         image: item.image,
       };
@@ -25,7 +25,7 @@ export async function getAllFavorites(request: ExtendedRequest) {
 export async function createNewFavorite(request: ExtendedRequest) {
   try {
     const { userVerifiedData } = request;
-    const { name, price, image, productId } = request.body;
+    const { name, price, image, productId, color, size } = request.body;
 
     const author: IAuthUser | null = await AuthModel.findOne({
       userId: userVerifiedData?.userId,
@@ -55,9 +55,11 @@ export async function createNewFavorite(request: ExtendedRequest) {
       name,
       price,
       image,
+      color,
+      size,
     });
     await newFavorite.save();
-    return { favoriteId, name, price, image, productId };
+    return { favoriteId, name, price, image, productId, color, size };
   } catch (error) {
     throw error;
   }

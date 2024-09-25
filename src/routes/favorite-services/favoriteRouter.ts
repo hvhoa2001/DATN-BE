@@ -20,6 +20,8 @@ router.post(
         productId: createdFavorite.productId,
         name: createdFavorite.name,
         price: createdFavorite.price,
+        color: createdFavorite.color,
+        size: createdFavorite.size,
       });
     } catch (err: any) {
       res.status(400).end(err.message);
