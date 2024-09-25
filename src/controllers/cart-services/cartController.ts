@@ -63,3 +63,23 @@ export async function getCartItems(request: ExtendedRequest) {
     };
   });
 }
+
+export async function deleteCartItem(request: ExtendedRequest) {
+  try {
+    const { productId } = request.query;
+    if (!productId) {
+      throw Error("Product ID is not defined");
+    }
+    const deletedItem = await CartModel.findOneAndDelete({ productId });
+
+    if (!deletedItem) {
+      throw new Error(`No cart item found with product ID: ${productId}`);
+    }
+    return {
+      success: true,
+      message: "Cart item deleted successfully",
+    };
+  } catch (error) {
+    throw error;
+  }
+}

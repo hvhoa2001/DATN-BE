@@ -3,6 +3,7 @@ import { verifyToken } from "../../middleware/auth";
 import { ExtendedRequest } from "../../controllers/type";
 import {
   createCartItem,
+  deleteCartItem,
   getCartItems,
 } from "../../controllers/cart-services/cartController";
 
@@ -41,6 +42,19 @@ router.get(
       }
       res.statusMessage = message;
       res.status(400).end();
+    }
+  }
+);
+
+router.delete(
+  "/delete-cart-item",
+  verifyToken,
+  async (req: ExtendedRequest, res: Response) => {
+    try {
+      const result = await deleteCartItem(req);
+      res.send(result);
+    } catch (error: any) {
+      res.status(400).end(error.message);
     }
   }
 );
