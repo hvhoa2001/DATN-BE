@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express";
 import {
   createNewProduct,
+  createSize,
+  createVariant,
   getAllProducts,
   getProductDetail,
 } from "../../controllers/product-services/productController";
@@ -16,6 +18,36 @@ router.post(
     try {
       const createdProduct = await createNewProduct(req);
       res.send({ productId: createdProduct });
+      res.end();
+    } catch (err: any) {
+      res.status(400);
+      res.end(err.message);
+    }
+  }
+);
+
+router.post(
+  "/:productId/variant",
+  verifyToken,
+  async (req: ExtendedRequest, res: Response) => {
+    try {
+      const result = await createVariant(req);
+      res.send({ variantId: result.variantId });
+      res.end();
+    } catch (err: any) {
+      res.status(400);
+      res.end(err.message);
+    }
+  }
+);
+
+router.post(
+  "/variants/:variantId/sizes",
+  verifyToken,
+  async (req: ExtendedRequest, res: Response) => {
+    try {
+      const result = await createSize(req);
+      res.send({ sizeId: result });
       res.end();
     } catch (err: any) {
       res.status(400);

@@ -1,49 +1,30 @@
 import { Document, model, Schema } from "mongoose";
+import { IProductVariant } from "./ProductVariantShema";
 
-export type TSize = {
-  size: number;
-  price: number;
-  stockQuantity: number;
-};
-
-export type TVariants = {
-  _id: string;
-  color: string;
-  preview: string;
-  image: Array<string> | undefined;
-  sizes: TSize;
-};
-
+type TStatus = "available" | "soldOut";
+type TGender = "Men" | "Women" | "Kids";
 export interface IProduct extends Document {
   _id: string;
   name: string;
   description: string;
-  variants: TVariants;
-  status: string;
-  price: number;
-  highlight: string;
-  image: Array<string> | undefined;
+  status: TStatus;
   category: string;
-  style: string;
-  madeIn: string;
+  gender: TGender;
   createdAt: number;
   updatedAt: number;
+  variants: Array<IProductVariant>;
 }
 
 const ProductSchema: Schema = new Schema<IProduct>({
   _id: { type: String, required: true },
   name: { type: String, required: true },
   description: { type: String, required: true },
-  variants: { type: Schema.Types.Mixed, required: true },
   status: { type: String, required: true },
-  price: { type: Number, required: true },
-  highlight: { type: String, required: false },
-  image: { type: Array<String>, required: true, default: [] },
   category: { type: String, required: true },
-  style: { type: String, required: true },
-  madeIn: { type: String, required: true },
+  gender: { type: String, required: true },
   createdAt: { type: Number, default: Date.now },
   updatedAt: { type: Number, required: false },
+  variants: { type: Schema.Types.Mixed, required: true, default: [] },
 });
 
 export const ProductModel = model<IProduct>("Product", ProductSchema);
