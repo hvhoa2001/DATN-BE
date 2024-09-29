@@ -21,19 +21,20 @@ export async function getAllProducts(req: Request) {
         category: item.category,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
-        variant: item.variants,
+        variants: item.variants,
       };
     }) || []
   );
 }
 
-export async function getProductDetail(req: ExtendedRequest) {
+export async function getVariantDetail(req: ExtendedRequest) {
   try {
-    const { productId } = req.query;
-    const productDetail = await ProductVariantModel.findOne({
+    const { productId, variantId } = req.query;
+    const variantDetail = await ProductVariantModel.findOne({
       productId: productId,
+      _id: variantId,
     });
-    if (!productDetail) {
+    if (!variantDetail) {
       throw Error("Product not found");
     }
 
@@ -48,25 +49,49 @@ export async function getProductDetail(req: ExtendedRequest) {
     //     );
     //   }, 0);
     // };
-    // const totalStockQuantity = calculateTotalStockQuantity(productDetail);
+    // const totalStockQuantity = calculateTotalStockQuantity(variantDetail);
 
     return {
+      variantId: variantId,
       productId: productId,
-      sizes: productDetail.sizes,
-      color: productDetail.color,
-      preview: productDetail.preview,
-      image: productDetail.image,
-      madeIn: productDetail.madeIn,
-      fullPrice: productDetail.fullPrice,
-      currentPrice: productDetail.currentPrice,
-      saleRate: productDetail.saleRate,
-      isOnSale: productDetail.isOnSale,
-      highlight: productDetail.highlight,
-      style: productDetail.style,
+      sizes: variantDetail.sizes,
+      color: variantDetail.color,
+      preview: variantDetail.preview,
+      image: variantDetail.image,
+      madeIn: variantDetail.madeIn,
+      fullPrice: variantDetail.fullPrice,
+      currentPrice: variantDetail.currentPrice,
+      saleRate: variantDetail.saleRate,
+      isOnSale: variantDetail.isOnSale,
+      highlight: variantDetail.highlight,
+      style: variantDetail.style,
     };
   } catch (error) {
     throw error;
   }
+}
+
+export async function getProductDetail(request: ExtendedRequest) {
+  const { productId } = request.query;
+  const productDetail = await ProductModel.findOne({
+    _id: productId,
+  });
+  if (!productDetail) {
+    throw Error("Product not found");
+  }
+
+  return {
+    productId: productId,
+    name: productDetail.name,
+    description: productDetail.description,
+    status: productDetail.status,
+    category: productDetail.category,
+    gender: productDetail.gender,
+    createdAt: productDetail.createdAt,
+    updatedAt: productDetail.updatedAt,
+    variants: productDetail.variants,
+    image: productDetail.variants?.map((item) => item.preview)[0],
+  };
 }
 
 export async function createNewProduct(request: ExtendedRequest) {
@@ -122,7 +147,6 @@ export async function createVariant(request: ExtendedRequest) {
       madeIn,
       color,
       preview,
-      isOnSale,
       saleRate,
       fullPrice,
       currentPrice,
@@ -159,7 +183,7 @@ export async function createVariant(request: ExtendedRequest) {
       fullPrice,
       currentPrice: fullPrice * (1 - saleRate),
       saleRate,
-      isOnSale,
+      isOnSale: saleRate ? true : false,
       highlight,
       style,
     });
@@ -223,6 +247,34 @@ export async function createSize(request: ExtendedRequest) {
     variants.sizes?.push(newSize);
     await variants.save();
     return sizeId;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function addVariantToProduct(req: ExtendedRequest) {
+  try {
+    const { productId, variantId } = req.body;
+
+    const product: IProduct | null = await ProductModel.findById(productId);
+    if (!product) {
+      throw Error("Product not found");
+    }
+
+    const variant: IProductVariant | null = await ProductVariantModel.findById(
+      variantId
+    );
+    if (!variant) {
+      throw Error("Variant not found");
+    }
+
+    const existingVariant = product.variants?.find((id) => id === variantId);
+    if (existingVariant) {
+      throw Error("Variant already exists in product");
+    }
+    product.variants?.push(variant);
+    await product.save();
+    return { productId, variantId };
   } catch (error) {
     throw error;
   }

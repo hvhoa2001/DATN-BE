@@ -1,10 +1,12 @@
 import express, { Request, Response } from "express";
 import {
+  addVariantToProduct,
   createNewProduct,
   createSize,
   createVariant,
   getAllProducts,
   getProductDetail,
+  getVariantDetail,
 } from "../../controllers/product-services/productController";
 import { verifyToken } from "../../middleware/auth";
 import { ExtendedRequest } from "../../controllers/type";
@@ -84,5 +86,35 @@ router.get("/product-detail", async (req: ExtendedRequest, res: Response) => {
     res.send(message);
   }
 });
+
+router.get("/variant-detail", async (req: ExtendedRequest, res: Response) => {
+  try {
+    const variantDetail = await getVariantDetail(req);
+    res.status(200);
+    res.json(variantDetail);
+  } catch (error) {
+    let message = "Unknown Error";
+    res.status(400);
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    res.send(message);
+  }
+});
+
+router.post(
+  "/add-variant",
+  verifyToken,
+  async (req: ExtendedRequest, res: Response) => {
+    try {
+      const result = await addVariantToProduct(req);
+      res.send(result);
+      res.end();
+    } catch (err: any) {
+      res.status(400);
+      res.end(err.message);
+    }
+  }
+);
 
 export { router as productRouter };

@@ -12,7 +12,7 @@ export interface IProduct extends Document {
   gender: TGender;
   createdAt: number;
   updatedAt: number;
-  variants: Array<IProductVariant>;
+  variants: Array<IProductVariant> | undefined;
 }
 
 const ProductSchema: Schema = new Schema<IProduct>({
@@ -24,7 +24,7 @@ const ProductSchema: Schema = new Schema<IProduct>({
   gender: { type: String, required: true },
   createdAt: { type: Number, default: Date.now },
   updatedAt: { type: Number, required: false },
-  variants: { type: Schema.Types.Mixed, required: true, default: [] },
+  variants: { type: Array<IProductVariant>, required: true, default: [] },
 });
 
 export const ProductModel = model<IProduct>("Product", ProductSchema);
