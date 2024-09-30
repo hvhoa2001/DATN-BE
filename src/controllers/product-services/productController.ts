@@ -17,6 +17,7 @@ export async function getAllProducts(req: Request) {
         productId: item._id,
         name: item.name,
         description: item.description,
+        gender: item.gender,
         status: item.status,
         category: item.category,
         createdAt: item.createdAt,
@@ -38,18 +39,15 @@ export async function getVariantDetail(req: ExtendedRequest) {
       throw Error("Product not found");
     }
 
-    // const calculateTotalStockQuantity = (product: IProduct): number => {
-    //   return product.variants.reduce((total, variant) => {
-    //     return (
-    //       total +
-    //       variant.sizes.reduce(
-    //         (sizeTotal, size) => sizeTotal + size.stockQuantity,
-    //         0
-    //       )
-    //     );
-    //   }, 0);
-    // };
-    // const totalStockQuantity = calculateTotalStockQuantity(variantDetail);
+    const calculateTotalStockQuantity = (product: IProductVariant): number => {
+      return (
+        product.sizes?.reduce((total, variant) => {
+          return total + variant.stockQuantity;
+        }, 0) ?? 0
+      );
+    };
+
+    const totalStockQuantity = calculateTotalStockQuantity(variantDetail);
 
     return {
       variantId: variantId,
@@ -65,6 +63,7 @@ export async function getVariantDetail(req: ExtendedRequest) {
       isOnSale: variantDetail.isOnSale,
       highlight: variantDetail.highlight,
       style: variantDetail.style,
+      isSoldOut: totalStockQuantity == 0 ? true : false,
     };
   } catch (error) {
     throw error;
