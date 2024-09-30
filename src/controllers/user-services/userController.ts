@@ -72,6 +72,7 @@ export async function getUserName(req: ExtendedRequest) {
       throw Error("User not found");
     }
     return {
+      userEmail: userProfile.email,
       userName: userProfile.userName,
       userId: userProfile.userId,
     };
