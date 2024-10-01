@@ -5,6 +5,7 @@ import {
   createCartItem,
   deleteCartItem,
   getCartItems,
+  getCartPrice,
 } from "../../controllers/cart-services/cartController";
 
 const router = express.Router();
@@ -55,6 +56,24 @@ router.delete(
       res.send(result);
     } catch (error: any) {
       res.status(400).end(error.message);
+    }
+  }
+);
+
+router.get(
+  "/cart-price",
+  verifyToken,
+  async (req: ExtendedRequest, res: Response) => {
+    try {
+      const result = await getCartPrice(req);
+      res.send(result);
+    } catch (err: any) {
+      let message = "Unknown error";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      res.statusMessage = message;
+      res.status(400).end();
     }
   }
 );

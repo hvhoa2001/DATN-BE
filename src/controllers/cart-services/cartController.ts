@@ -51,6 +51,9 @@ export async function getCartItems(request: ExtendedRequest) {
   const res = await CartModel.find({
     userId: userVerifiedData?.userId,
   });
+
+  const totalPrice = res.reduce((sum, item) => sum + item.price, 0);
+
   return res.map((item) => {
     return {
       productId: item.productId,
@@ -82,4 +85,20 @@ export async function deleteCartItem(request: ExtendedRequest) {
   } catch (error) {
     throw error;
   }
+}
+
+export async function getCartPrice(request: ExtendedRequest) {
+  const { userVerifiedData } = request;
+  const res = await CartModel.find({
+    userId: userVerifiedData?.userId,
+  });
+
+  const subTotal = res.reduce((sum, item) => sum + item.price, 0);
+  const fee = subTotal < 200 ? 10 : 0;
+
+  return {
+    subTotal: subTotal,
+    fee: fee,
+    total: subTotal + fee,
+  };
 }
