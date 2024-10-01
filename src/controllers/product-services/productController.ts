@@ -10,7 +10,10 @@ import {
 import { ISize, SizeModel } from "../../models/Product/SizeSchema";
 
 export async function getAllProducts(req: Request) {
-  const res = await ProductModel.find();
+  const { name } = req.query;
+  const res = await ProductModel.find({
+    name: { $regex: `${name || ".*"}`, $options: "i" },
+  });
   return (
     res.map((item) => {
       return {
