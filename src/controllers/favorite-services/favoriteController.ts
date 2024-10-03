@@ -12,6 +12,8 @@ export async function getAllFavorites(request: ExtendedRequest) {
     res.map((item) => {
       return {
         productId: item.productId,
+        variantId: item.variantId,
+        sizeId: item.sizeId,
         name: item.name,
         color: item.color,
         size: item.size,
@@ -25,7 +27,8 @@ export async function getAllFavorites(request: ExtendedRequest) {
 export async function createNewFavorite(request: ExtendedRequest) {
   try {
     const { userVerifiedData } = request;
-    const { name, price, image, productId, color, size } = request.body;
+    const { name, price, image, productId, color, size, variantId, sizeId } =
+      request.body;
 
     const author: IAuthUser | null = await AuthModel.findOne({
       userId: userVerifiedData?.userId,
@@ -37,6 +40,7 @@ export async function createNewFavorite(request: ExtendedRequest) {
 
     const existingFavorite = await FavoriteModel.findOne({
       productId: productId,
+      variantId: variantId,
     });
 
     if (existingFavorite) {
@@ -52,6 +56,8 @@ export async function createNewFavorite(request: ExtendedRequest) {
       _id: favoriteId,
       userId: userVerifiedData?.userId,
       productId,
+      variantId,
+      sizeId,
       name,
       price,
       image,
