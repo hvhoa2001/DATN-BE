@@ -13,4 +13,7 @@ export type ExtendedRequest = Request & {
   favoriteVerifiedData?: {
     favoriteId: string;
   };
+  orderVerifiedData?: {
+    orderId: string;
+  };
 };

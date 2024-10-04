@@ -9,6 +9,7 @@ import { productRouter } from "./src/routes/product-services/productRouter";
 import { reviewRouter } from "./src/routes/reviews-services/reivewsRouter";
 import { favoriteRouter } from "./src/routes/favorite-services/favoriteRouter";
 import { cartRouter } from "./src/routes/cart-services/cartRouter";
+import { orderRouter } from "./src/routes/order-services/orderRouter";
 
 const app = express();
 const port = process.env.PORT;
@@ -23,6 +24,7 @@ app.use("/product", productRouter);
 app.use("/reviews", reviewRouter);
 app.use("/favorite", favoriteRouter);
 app.use("/cart", cartRouter);
+app.use("/order", orderRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).send("Hello, world!");
