@@ -120,57 +120,56 @@ export async function checkQuantity(request: ExtendedRequest) {
     ) {
       return false;
     }
-    // throw new Error("Insufficient stock quantity");
     return true;
   } catch (error) {
     throw error;
   }
 }
 
-// export async function getCartPrice(request: ExtendedRequest) {
-//   const { userVerifiedData } = request;
-//   const res = await CartModel.find({
-//     userId: userVerifiedData?.userId,
-//   });
-
-//   const subTotal = res.reduce((sum, item) => sum + item.price, 0);
-//   const fee = subTotal < 200 ? 10 : 0;
-
-//   return {
-//     subTotal: subTotal,
-//     fee: fee,
-//     total: subTotal + fee,
-//   };
-// }
-
 export async function getCartPrice(request: ExtendedRequest) {
   const { userVerifiedData } = request;
-
   const cartItems = await CartModel.find({
     userId: userVerifiedData?.userId,
   });
-  console.log("🚀 ~ getCartPrice ~ cartItems:", cartItems);
-
   let subTotal = 0;
-
   for (const item of cartItems) {
     const size = await SizeModel.findOne({
       _id: item.sizeId,
       variantId: item.variantId,
     });
-
-    console.log("size", size);
-
     if (size?.stockQuantity && size.stockQuantity >= item.quantity) {
       subTotal += item.price * item.quantity;
     }
   }
-
-  const fee = subTotal < 200 ? 10 : 0;
-
+  let fee = 0;
+  if (subTotal) {
+    fee = subTotal < 200 ? 10 : 0;
+  }
   return {
     subTotal: subTotal,
     fee: fee,
     total: subTotal + fee,
   };
+}
+
+export async function getCheckout(request: ExtendedRequest) {
+  try {
+    const { userVerifiedData } = request;
+    const cartItems = await CartModel.find({
+      userId: userVerifiedData?.userId,
+    });
+    let newCartItem = [];
+    for (const item of cartItems) {
+      const size = await SizeModel.findOne({
+        _id: item.sizeId,
+        variantId: item.variantId,
+      });
+      if (size?.stockQuantity && size.stockQuantity >= item.quantity) {
+        newCartItem.push(item);
+      }
+    }
+    return newCartItem;
+  } catch (error) {
+    throw error;
+  }
 }

@@ -7,6 +7,7 @@ import {
   deleteCartItem,
   getCartItems,
   getCartPrice,
+  getCheckout,
 } from "../../controllers/cart-services/cartController";
 
 const router = express.Router();
@@ -96,6 +97,24 @@ router.get(
           message: "Cart item deleted successfully",
         });
       }
+    } catch (error) {
+      let message = "Unknown Error";
+      if (error instanceof Error) {
+        message = error.message;
+      }
+      res.status(404);
+      res.end(message);
+    }
+  }
+);
+
+router.get(
+  "/checkout",
+  verifyToken,
+  async (req: ExtendedRequest, res: Response) => {
+    try {
+      const result = await getCheckout(req);
+      res.send(result);
     } catch (error) {
       let message = "Unknown Error";
       if (error instanceof Error) {

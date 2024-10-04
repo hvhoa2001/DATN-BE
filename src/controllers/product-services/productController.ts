@@ -246,6 +246,7 @@ export async function createSize(request: ExtendedRequest) {
       size,
       stockQuantity,
     });
+    await newSize.save();
     variants.sizes?.push(newSize);
     await variants.save();
     return sizeId;
