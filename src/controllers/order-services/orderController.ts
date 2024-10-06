@@ -6,7 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 export async function createNewOrder(request: ExtendedRequest) {
   try {
     const { userVerifiedData, orderVerifiedData } = request;
-    const { address, paymentMethod, totalAmount, status } = request.body;
+    const { address, paymentMethod, totalAmount, status, userName } =
+      request.body;
 
     const author: IAuthUser | null = await AuthModel.findOne({
       userId: userVerifiedData?.userId,
@@ -27,6 +28,7 @@ export async function createNewOrder(request: ExtendedRequest) {
     const newOrder: IOrders = new OrderModel({
       _id: orderId,
       userId: userVerifiedData?.userId,
+      userName,
       orderDate: Date.now(),
       totalAmount,
       status,
@@ -34,7 +36,14 @@ export async function createNewOrder(request: ExtendedRequest) {
       paymentMethod: paymentMethod,
     });
     await newOrder.save();
-    return orderId;
+    return {
+      orderId,
+      userName,
+      address,
+      paymentMethod,
+      totalAmount,
+      status,
+    };
   } catch (error) {
     throw error;
   }
@@ -50,6 +59,7 @@ export async function getOrders(request: ExtendedRequest) {
       return {
         orderId: item._id,
         orderDate: item.orderDate,
+        userName: item.userName,
         status: item.status,
         totalAmount: item.totalAmount,
         shippingAddress: item.shippingAddress,

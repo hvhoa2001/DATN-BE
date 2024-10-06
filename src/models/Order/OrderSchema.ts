@@ -5,6 +5,7 @@ type PaymentMethod = "NFTs" | "Credit Card";
 export interface IOrders extends Document {
   _id: string;
   userId: string;
+  userName: string;
   orderDate: number;
   totalAmount: number;
   status: StatusOrder;
@@ -15,6 +16,7 @@ export interface IOrders extends Document {
 const OrderSchema: Schema = new Schema<IOrders>({
   _id: { type: String, required: true },
   userId: { type: String, required: true },
+  userName: { type: String, required: true },
   orderDate: { type: Number, required: true },
   totalAmount: { type: Number, required: true },
   status: { type: String, required: true, default: "In process" },
