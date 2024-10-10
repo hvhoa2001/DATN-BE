@@ -249,7 +249,22 @@ export async function createSize(request: ExtendedRequest) {
       stockQuantity,
     });
     await newSize.save();
-    variants.sizes?.push(newSize);
+    // variants.sizes?.push(newSize);
+    await ProductVariantModel.findOneAndUpdate(
+      {
+        _id: variantId,
+      },
+      {
+        $push: {
+          sizes: {
+            _id: newSize._id,
+            variantId: newSize.variantId,
+            size: newSize.size,
+            stockQuantity: newSize.stockQuantity,
+          },
+        },
+      }
+    );
     await variants.save();
     return sizeId;
   } catch (error) {

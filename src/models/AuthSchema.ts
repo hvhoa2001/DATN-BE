@@ -1,5 +1,10 @@
 import { Document, model, Schema } from "mongoose";
 
+export enum Role {
+  ADMIN = "admin",
+  USER = "user",
+}
+
 export interface IAuthUser extends Document {
   userName: string;
   email: string;
@@ -7,6 +12,7 @@ export interface IAuthUser extends Document {
   password: string;
   firstName: string;
   lastName: string;
+  role: Role;
 }
 
 const AuthSchema: Schema = new Schema<IAuthUser>({
@@ -16,6 +22,7 @@ const AuthSchema: Schema = new Schema<IAuthUser>({
   password: { type: String, required: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
+  role: { type: String, required: true, default: Role.USER },
 });
 
 export const AuthModel = model<IAuthUser>("AuthUser", AuthSchema);
