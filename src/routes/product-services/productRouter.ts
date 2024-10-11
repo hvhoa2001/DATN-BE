@@ -10,12 +10,14 @@ import {
 } from "../../controllers/product-services/productController";
 import { verifyToken } from "../../middleware/auth";
 import { ExtendedRequest } from "../../controllers/type";
+import permit from "../../middleware/role";
 
 const router = express.Router();
 
 router.post(
   "/new-product",
   verifyToken,
+  permit("admin"),
   async (req: ExtendedRequest, res: Response) => {
     try {
       const createdProduct = await createNewProduct(req);
@@ -31,6 +33,7 @@ router.post(
 router.post(
   "/:productId/variant",
   verifyToken,
+  permit("admin"),
   async (req: ExtendedRequest, res: Response) => {
     try {
       const result = await createVariant(req);
@@ -46,6 +49,7 @@ router.post(
 router.post(
   "/variants/:variantId/sizes",
   verifyToken,
+  permit("admin"),
   async (req: ExtendedRequest, res: Response) => {
     try {
       const result = await createSize(req);

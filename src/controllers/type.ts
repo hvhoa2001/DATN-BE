@@ -1,8 +1,10 @@
 import { Request } from "express";
+import { Role } from "../models/AuthSchema";
 
 export type ExtendedRequest = Request & {
   userVerifiedData?: {
     userId: string;
+    role: Role;
   };
   productVerifiedData?: {
     productId: string;

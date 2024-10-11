@@ -75,6 +75,7 @@ export async function getUserName(req: ExtendedRequest) {
       userEmail: userProfile.email,
       userName: userProfile.userName,
       userId: userProfile.userId,
+      role: userProfile.role,
     };
   } catch (error) {
     throw error;
@@ -119,6 +120,28 @@ export async function checkEmail(req: ExtendedRequest) {
       return false;
     }
     return true;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateRole(req: ExtendedRequest) {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+    if (!userId && !role) {
+      throw Error("Missing information");
+    }
+
+    const user = await AuthModel.findOne({
+      userId: userId,
+    });
+    if (!user) {
+      throw Error("Invalid user");
+    }
+    user.role = role;
+    await user.save();
+    return { user: user.email, role: user.role };
   } catch (error) {
     throw error;
   }
