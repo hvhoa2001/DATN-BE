@@ -27,7 +27,8 @@ router.post("/login", async (req: Request, res: Response) => {
     res.status(200);
     res.json({
       success: true,
-      jwt: jwt,
+      jwt: jwt.token,
+      role: jwt.role,
     });
   } catch (err: any) {
     res.status(400);

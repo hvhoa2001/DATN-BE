@@ -49,13 +49,14 @@ export async function login(req: ExtendedRequest) {
       var token = await jwt.sign(
         {
           userId: currentUser.userId,
+          role: currentUser.role,
         },
         process.env.SECRET_KEY || "",
         {
           expiresIn: "36500d",
         }
       );
-      return token;
+      return { token, role: currentUser.role };
     } else {
       throw Error("Invalid password");
     }
