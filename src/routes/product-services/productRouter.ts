@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import {
   addVariantToProduct,
   createNewProduct,
+  createProduct,
   createSize,
   createVariant,
   getAllProducts,
@@ -13,6 +14,22 @@ import { ExtendedRequest } from "../../controllers/type";
 import permit from "../../middleware/role";
 
 const router = express.Router();
+
+router.post(
+  "/create-product",
+  verifyToken,
+  permit("admin"),
+  async (req: ExtendedRequest, res: Response) => {
+    try {
+      const result = await createProduct(req);
+      res.send(result);
+      res.end();
+    } catch (err: any) {
+      res.status(400);
+      res.end(err.message);
+    }
+  }
+);
 
 router.post(
   "/new-product",

@@ -8,6 +8,7 @@ import {
   ProductVariantModel,
 } from "../../models/Product/ProductVariantShema";
 import { ISize, SizeModel } from "../../models/Product/SizeSchema";
+import mongoose from "mongoose";
 
 export async function getAllProducts(req: Request) {
   const { name, category, gender } = req.query;
@@ -296,6 +297,172 @@ export async function addVariantToProduct(req: ExtendedRequest) {
     await product.save();
     return { productId, variantId };
   } catch (error) {
+    throw error;
+  }
+}
+
+export async function createProduct(request: ExtendedRequest) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { userVerifiedData } = request;
+    const { name, description, status, category, gender, variants } =
+      request.body;
+
+    const existingProduct = await ProductModel.findOne({
+      name: name,
+      category: category,
+      gender: gender,
+    });
+    if (existingProduct) {
+      throw Error("Product already exists");
+    }
+
+    if (!(name && status && category && variants)) {
+      throw Error("Missing product or variant information");
+    }
+
+    const author: IAuthUser | null = await AuthModel.findOne({
+      userId: userVerifiedData?.userId,
+    });
+    if (!author) {
+      throw Error("Wrong author ID");
+    }
+
+    const productId = uuidv4();
+    const newProduct = new ProductModel({
+      _id: productId,
+      name: String(name).slice(0, 100),
+      description: String(description).slice(0, 1000),
+      status,
+      gender,
+      category,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await newProduct.save({ session });
+
+    const variantResults = [];
+
+    for (const variantData of variants) {
+      const {
+        color,
+        preview,
+        image,
+        madeIn,
+        style,
+        fullPrice,
+        saleRate = 0,
+        sizes,
+        highlight,
+      } = variantData;
+
+      if (
+        !(color && preview && image && madeIn && style && fullPrice && sizes)
+      ) {
+        throw Error("Missing variant information");
+      }
+
+      const variantId = uuidv4();
+      const newVariant = new ProductVariantModel({
+        _id: variantId,
+        productId,
+        color,
+        preview,
+        image,
+        highlight,
+        madeIn,
+        fullPrice,
+        currentPrice: fullPrice * (1 - saleRate),
+        saleRate,
+        isOnSale: saleRate > 0,
+        style,
+      });
+
+      await newVariant.save();
+
+      const sizeResults = [];
+      for (const sizeData of sizes) {
+        const { size, stockQuantity } = sizeData;
+
+        if (!size) throw Error(`Missing size information for variant ${color}`);
+
+        const sizeId = uuidv4();
+        const newSize = new SizeModel({
+          _id: sizeId,
+          variantId,
+          size,
+          stockQuantity,
+        });
+        await newSize.save();
+
+        await ProductVariantModel.findOneAndUpdate(
+          { _id: variantId },
+          {
+            $push: {
+              sizes: {
+                _id: newSize._id,
+                variantId: newSize.variantId,
+                size: newSize.size,
+                stockQuantity: newSize.stockQuantity,
+              },
+            },
+          },
+          { session }
+        );
+
+        sizeResults.push({
+          _id: sizeId,
+          variantId: newSize.variantId,
+          size: newSize.size,
+          stockQuantity: newSize.stockQuantity,
+        });
+      }
+
+      await ProductModel.findOneAndUpdate(
+        { _id: productId },
+        {
+          $push: {
+            variants: {
+              _id: newVariant._id,
+              productId: newVariant.productId,
+              color: newVariant.color,
+              preview: newVariant.preview,
+              image: newVariant.image,
+              highlight: newVariant.highlight,
+              madeIn: newVariant.madeIn,
+              fullPrice: newVariant.fullPrice,
+              currentPrice: newVariant.currentPrice,
+              saleRate: newVariant.saleRate,
+              isOnSale: newVariant.isOnSale,
+              style: newVariant.style,
+              sizes: sizeResults,
+            },
+          },
+        },
+        { session }
+      );
+
+      variantResults.push({
+        variantId,
+        color,
+        sizes: sizeResults,
+        currentPrice: newVariant.currentPrice,
+        fullPrice,
+      });
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      productId,
+      variants: variantResults,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     throw error;
   }
 }
