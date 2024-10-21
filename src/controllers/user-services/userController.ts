@@ -154,7 +154,7 @@ function generateToken(user: IAuthUser): string {
       userId: user.userId,
       role: user.role,
     },
-    process.env.JWT_SECRET || "",
+    process.env.SECRET_KEY || "",
     { expiresIn: "36500d" }
   );
 }
