@@ -147,3 +147,28 @@ export async function updateRole(req: ExtendedRequest) {
     throw error;
   }
 }
+
+function generateToken(user: IAuthUser): string {
+  return jwt.sign(
+    {
+      userId: user.userId,
+      role: user.role,
+    },
+    process.env.JWT_SECRET || "",
+    { expiresIn: "36500d" }
+  );
+}
+
+export async function googleCallback(req: ExtendedRequest) {
+  try {
+    const user = req.user as IAuthUser;
+
+    if (!user) {
+      throw Error("Invalid user");
+    }
+    const token = generateToken(user);
+    return { jwt: token, role: user.role };
+  } catch (error) {
+    throw error;
+  }
+}

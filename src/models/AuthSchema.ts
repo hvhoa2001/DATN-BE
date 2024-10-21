@@ -19,9 +19,9 @@ const AuthSchema: Schema = new Schema<IAuthUser>({
   userName: { type: String, required: false },
   email: { type: String, required: true },
   userId: { type: String, required: true },
-  password: { type: String, required: true },
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  password: { type: String, required: false },
+  firstName: { type: String, required: false },
+  lastName: { type: String, required: false },
   role: { type: String, required: true, default: Role.USER },
 });
 

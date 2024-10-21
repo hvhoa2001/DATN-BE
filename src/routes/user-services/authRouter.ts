@@ -1,10 +1,12 @@
 import express, { Request, Response } from "express";
 import {
   checkEmail,
+  googleCallback,
   login,
   register,
 } from "../../controllers/user-services/userController";
 import { verifyToken } from "../../middleware/auth";
+import passport from "../../middleware/passport";
 
 const router = express.Router();
 
@@ -66,5 +68,33 @@ router.get("/checkEmail", async (req: Request, res: Response) => {
     res.end(message);
   }
 });
+
+router.get(
+  "/google-login",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  async (req: Request, res: Response) => {
+    try {
+      const result = await googleCallback(req);
+      res.status(200);
+      res.json({
+        success: true,
+        jwt: result.jwt,
+        role: result.role,
+      });
+    } catch (error) {
+      let message = "Unknown Error";
+      if (error instanceof Error) {
+        message = error.message;
+      }
+      res.status(401);
+      res.end(message);
+    }
+  }
+);
 
 export { router as authRouter };
