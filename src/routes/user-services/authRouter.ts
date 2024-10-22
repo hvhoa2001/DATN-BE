@@ -71,7 +71,7 @@ router.get("/checkEmail", async (req: Request, res: Response) => {
 
 router.get(
   "/google-login",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["profile", "email", "openid"] })
 );
 
 router.get(
@@ -81,11 +81,12 @@ router.get(
     try {
       const result = await googleCallback(req);
       res.status(200);
-      res.json({
-        success: true,
-        jwt: result.jwt,
-        role: result.role,
-      });
+      // Ví dụ lưu JWT vào cookie
+      res.cookie("jwt", result.jwt, { httpOnly: true });
+      res.cookie("role", result.role, { httpOnly: true });
+
+      // Chuyển hướng người dùng sau khi đã lưu thông tin
+      res.redirect("http://localhost:5173/products");
     } catch (error) {
       let message = "Unknown Error";
       if (error instanceof Error) {
