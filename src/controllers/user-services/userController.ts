@@ -3,7 +3,7 @@ import { AuthModel, IAuthUser } from "../../models/AuthSchema";
 import { ExtendedRequest } from "../type";
 // import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
-import { ethers } from "ethers";
+import { ethers, hashMessage, recoverAddress } from "ethers";
 
 // export async function register(req: ExtendedRequest) {
 //   try {
@@ -176,16 +176,34 @@ export async function googleCallback(req: ExtendedRequest) {
 
 export async function LoginWallet(req: ExtendedRequest) {
   const { address, nonce, signature } = req.body;
-  const user = req.user as IAuthUser;
 
   if (!(address && nonce && signature)) {
-    throw Error("Missing information");
+    throw new Error("Missing information");
   }
 
-  const recoveredAddress = ethers.utils.recoverAddress(nonce, signature);
-  if (recoveredAddress !== address) {
-    throw Error("Invalid signature");
+  const msg = `I am signing my one-time nonce: ${nonce}.`;
+
+  let recoveredAddress: string;
+  try {
+    recoveredAddress = recoverAddress(hashMessage(msg), signature);
+  } catch (error) {
+    throw new Error("Error recovering address from signature");
   }
+
+  if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
+    throw new Error("Invalid signature");
+  }
+
+  let user = await AuthModel.findOne({ userId: address });
+  if (!user) {
+    user = new AuthModel({
+      userId: address,
+      role: "user",
+      email: "",
+    });
+    await user.save();
+  }
+
   const token = generateToken(user);
   return { jwt: token, role: user.role };
 }

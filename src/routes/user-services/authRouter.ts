@@ -93,7 +93,7 @@ router.get(
   }
 );
 
-router.get("/login-wallet", async (req: Request, res: Response) => {
+router.post("/login-wallet", async (req: Request, res: Response) => {
   try {
     const jwt = await LoginWallet(req);
     res.status(200);
