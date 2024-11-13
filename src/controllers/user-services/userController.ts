@@ -1,67 +1,68 @@
 import { AuthModel, IAuthUser } from "../../models/AuthSchema";
-import { hashString, verifyHash } from "../../utils/auth";
+// import { hashString, verifyHash } from "../../utils/auth";
 import { ExtendedRequest } from "../type";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
+import { ethers } from "ethers";
 
-export async function register(req: ExtendedRequest) {
-  try {
-    const userId = uuidv4();
-    const { password, email, firstName, lastName } = req.body;
+// export async function register(req: ExtendedRequest) {
+//   try {
+//     const userId = uuidv4();
+//     const { password, email, firstName, lastName } = req.body;
 
-    //Check input data
-    if (!(password && email)) {
-      throw Error("Missing information");
-    }
-    const existingUser = await AuthModel.findOne({ email: email });
-    if (existingUser) {
-      throw Error("Email already exists");
-    }
+//     //Check input data
+//     if (!(password && email)) {
+//       throw Error("Missing information");
+//     }
+//     const existingUser = await AuthModel.findOne({ email: email });
+//     if (existingUser) {
+//       throw Error("Email already exists");
+//     }
 
-    //create application for user
-    const newUser = new AuthModel({
-      userId: userId,
-      password: await hashString(String(password).trim()),
-      email,
-      firstName,
-      lastName,
-      userName: `${firstName} ${lastName}`,
-    });
-    newUser.save();
-  } catch (error) {
-    throw error;
-  }
-}
+//     //create application for user
+//     const newUser = new AuthModel({
+//       userId: userId,
+//       password: await hashString(String(password).trim()),
+//       email,
+//       firstName,
+//       lastName,
+//       userName: `${firstName} ${lastName}`,
+//     });
+//     newUser.save();
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 
-export async function login(req: ExtendedRequest) {
-  const { email, password } = req.body;
-  if (!(email && password)) {
-    throw Error("Missing information");
-  }
-  const currentUser: IAuthUser | null = await AuthModel.findOne({
-    email: email,
-  });
+// export async function login(req: ExtendedRequest) {
+//   const { email, password } = req.body;
+//   if (!(email && password)) {
+//     throw Error("Missing information");
+//   }
+//   const currentUser: IAuthUser | null = await AuthModel.findOne({
+//     email: email,
+//   });
 
-  if (!currentUser) {
-    throw Error("User not exist");
-  } else {
-    if (await verifyHash(password, currentUser.password)) {
-      var token = await jwt.sign(
-        {
-          userId: currentUser.userId,
-          role: currentUser.role,
-        },
-        process.env.SECRET_KEY || "",
-        {
-          expiresIn: "36500d",
-        }
-      );
-      return { token, role: currentUser.role };
-    } else {
-      throw Error("Invalid password");
-    }
-  }
-}
+//   if (!currentUser) {
+//     throw Error("User not exist");
+//   } else {
+//     if (await verifyHash(password, currentUser.password)) {
+//       var token = await jwt.sign(
+//         {
+//           userId: currentUser.userId,
+//           role: currentUser.role,
+//         },
+//         process.env.SECRET_KEY || "",
+//         {
+//           expiresIn: "36500d",
+//         }
+//       );
+//       return { token, role: currentUser.role };
+//     } else {
+//       throw Error("Invalid password");
+//     }
+//   }
+// }
 
 export async function getUserName(req: ExtendedRequest) {
   try {
@@ -171,4 +172,20 @@ export async function googleCallback(req: ExtendedRequest) {
   } catch (error) {
     throw error;
   }
+}
+
+export async function LoginWallet(req: ExtendedRequest) {
+  const { address, nonce, signature } = req.body;
+  const user = req.user as IAuthUser;
+
+  if (!(address && nonce && signature)) {
+    throw Error("Missing information");
+  }
+
+  const recoveredAddress = ethers.utils.recoverAddress(nonce, signature);
+  if (recoveredAddress !== address) {
+    throw Error("Invalid signature");
+  }
+  const token = generateToken(user);
+  return { jwt: token, role: user.role };
 }
