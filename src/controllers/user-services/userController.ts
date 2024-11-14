@@ -3,7 +3,7 @@ import { AuthModel, IAuthUser } from "../../models/AuthSchema";
 import { ExtendedRequest } from "../type";
 // import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
-import { ethers, hashMessage, recoverAddress } from "ethers";
+import { ethers, hashMessage, recoverAddress, verifyMessage } from "ethers";
 
 // export async function register(req: ExtendedRequest) {
 //   try {
@@ -185,12 +185,12 @@ export async function LoginWallet(req: ExtendedRequest) {
 
   let recoveredAddress: string;
   try {
-    recoveredAddress = recoverAddress(hashMessage(msg), signature);
+    recoveredAddress = await verifyMessage(msg, signature);
   } catch (error) {
     throw new Error("Error recovering address from signature");
   }
 
-  if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
+  if (recoveredAddress !== address) {
     throw new Error("Invalid signature");
   }
 
@@ -198,6 +198,7 @@ export async function LoginWallet(req: ExtendedRequest) {
   if (!user) {
     user = new AuthModel({
       userId: address,
+      address: address,
       role: "user",
       email: "",
     });
