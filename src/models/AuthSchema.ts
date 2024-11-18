@@ -12,6 +12,8 @@ export interface IAuthUser extends Document {
   // password: string;
   firstName?: string;
   lastName?: string;
+  avatar?: string;
+  cover?: string;
   address: string;
   role: Role;
 }
@@ -24,6 +26,8 @@ const AuthSchema: Schema = new Schema<IAuthUser>({
   // password: { type: String, required: false },
   firstName: { type: String, required: false },
   lastName: { type: String, required: false },
+  cover: { type: String, required: false },
+  avatar: { type: String, required: false },
   role: { type: String, required: true, default: Role.USER },
 });
 

@@ -103,6 +103,9 @@ export async function getUserProfile(req: ExtendedRequest) {
       email: userProfile.email,
       firstName: userProfile.firstName,
       lastName: userProfile.lastName,
+      address: userProfile.address,
+      avatar: userProfile.avatar,
+      cover: userProfile.cover,
     };
   } catch (error) {
     throw error;
@@ -201,6 +204,7 @@ export async function LoginWallet(req: ExtendedRequest) {
       address: address,
       role: "user",
       email: "",
+      userName: address,
     });
     await user.save();
   }
