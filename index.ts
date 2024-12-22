@@ -11,6 +11,7 @@ import { reviewRouter } from "./src/routes/reviews-services/reivewsRouter";
 import { favoriteRouter } from "./src/routes/favorite-services/favoriteRouter";
 import { cartRouter } from "./src/routes/cart-services/cartRouter";
 import { orderRouter } from "./src/routes/order-services/orderRouter";
+import { pinataRouter } from "./src/routes/pinata-services/pinataRouter";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { AuthModel } from "./src/models/AuthSchema";
@@ -79,6 +80,7 @@ app.use("/reviews", reviewRouter);
 app.use("/favorite", favoriteRouter);
 app.use("/cart", cartRouter);
 app.use("/order", orderRouter);
+app.use("/pinata", pinataRouter);
 
 app.use(passport.initialize());
 app.use(passport.session());

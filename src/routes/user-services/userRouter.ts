@@ -45,7 +45,7 @@ router.get(
 
 router.patch(
   "/:userId/update-role",
-  permit("admin"),
+  // permit("admin"),
   verifyToken,
   async (req: ExtendedRequest, res: Response) => {
     try {
