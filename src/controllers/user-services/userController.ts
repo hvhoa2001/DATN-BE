@@ -179,24 +179,19 @@ export async function googleCallback(req: ExtendedRequest) {
 
 export async function LoginWallet(req: ExtendedRequest) {
   const { address, nonce, signature } = req.body;
-
   if (!(address && nonce && signature)) {
     throw new Error("Missing information");
   }
-
   const msg = `I am signing my one-time nonce: ${nonce}.`;
-
   let recoveredAddress: string;
   try {
     recoveredAddress = await verifyMessage(msg, signature);
   } catch (error) {
     throw new Error("Error recovering address from signature");
   }
-
   if (recoveredAddress !== address) {
     throw new Error("Invalid signature");
   }
-
   let user = await AuthModel.findOne({ userId: address });
   if (!user) {
     user = new AuthModel({
@@ -208,7 +203,6 @@ export async function LoginWallet(req: ExtendedRequest) {
     });
     await user.save();
   }
-
   const token = generateToken(user);
   return { jwt: token, role: user.role };
 }
