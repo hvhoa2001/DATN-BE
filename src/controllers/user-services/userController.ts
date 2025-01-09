@@ -3,7 +3,7 @@ import { AuthModel, IAuthUser } from "../../models/AuthSchema";
 import { ExtendedRequest } from "../type";
 // import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
-import { ethers, hashMessage, recoverAddress, verifyMessage } from "ethers";
+import { ethers } from "ethers";
 
 // export async function register(req: ExtendedRequest) {
 //   try {
@@ -185,7 +185,7 @@ export async function LoginWallet(req: ExtendedRequest) {
   const msg = `I am signing my one-time nonce: ${nonce}.`;
   let recoveredAddress: string;
   try {
-    recoveredAddress = await verifyMessage(msg, signature);
+    recoveredAddress = await ethers.utils.verifyMessage(msg, signature);
   } catch (error) {
     throw new Error("Error recovering address from signature");
   }

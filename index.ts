@@ -16,6 +16,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { AuthModel } from "./src/models/AuthSchema";
 import { v4 as uuidv4 } from "uuid";
+import { nftRouter } from "./src/routes/nft-serivices/nftRouter";
 
 const app = express();
 const port = process.env.PORT;
@@ -81,6 +82,7 @@ app.use("/favorite", favoriteRouter);
 app.use("/cart", cartRouter);
 app.use("/order", orderRouter);
 app.use("/pinata", pinataRouter);
+app.use("/nft", nftRouter);
 
 app.use(passport.initialize());
 app.use(passport.session());
