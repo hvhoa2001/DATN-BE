@@ -5,6 +5,52 @@ import {
 } from "../../middleware/Contract/crawlNFTData";
 import { ShopContractService } from "../../middleware/Contract/crawlShopData";
 import { INFTShop, NFTShopModel } from "../../models/NFTData/NFTShopSchema";
+import { INFTData, NFTDataModel } from "../../models/NFTData/NFTDataSchema";
+import { ExtendedRequest } from "../type";
+
+export async function crawlNFTData() {
+  try {
+    const nftContractService = new NFTContractService();
+    const nfts = await nftContractService.getAllNFTs();
+
+    if (!nfts || nfts.length === 0) {
+      throw Error("No NFTs found");
+    }
+
+    for (const nft of nfts) {
+      const existingProduct = await NFTDataModel.findOne({
+        tokenId: nft.tokenId,
+      });
+
+      if (existingProduct) {
+        console.info(`NFT with tokenId ${nft.tokenId} already exists`);
+        continue;
+      }
+
+      const newNFTData: INFTData = new NFTDataModel({
+        tokenId: nft.tokenId,
+        name: nft.name,
+        description: nft.description,
+        size: nft.size,
+        owner: nft.owner,
+        image: nft.image,
+      });
+
+      try {
+        await newNFTData.save();
+        console.info(`NFT with tokenId ${nft.tokenId} saved successfully`);
+      } catch (saveError) {
+        console.error(
+          `Error saving NFT with tokenId ${nft.tokenId}`,
+          saveError
+        );
+      }
+    }
+  } catch (error) {
+    console.error("🚀 ~ crawlNFTData ~ error:", error);
+    throw Error("Crawling failed");
+  }
+}
 
 export async function syncNFTsToProducts() {
   try {
@@ -131,4 +177,23 @@ export async function getProductByName(req: Request) {
     console.error("🚀 ~ getProductByName ~ error:", error);
     throw new Error("Failed to fetch product details");
   }
+}
+
+export async function getUserNFTs(req: ExtendedRequest) {
+  const { userVerifiedData } = req;
+  const res = await NFTDataModel.find({ owner: userVerifiedData?.userId });
+
+  return res;
+}
+
+export async function getUserNFTDetails(req: ExtendedRequest) {
+  const { tokenId } = req.query;
+  const { userVerifiedData } = req;
+
+  const res = await NFTDataModel.findOne({
+    owner: userVerifiedData?.userId,
+    tokenId: tokenId,
+  });
+
+  return res;
 }
