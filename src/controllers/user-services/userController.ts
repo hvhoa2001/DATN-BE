@@ -155,7 +155,7 @@ export async function updateRole(req: ExtendedRequest) {
 function generateToken(user: IAuthUser): string {
   return jwt.sign(
     {
-      userId: user.userId,
+      userId: user.address,
       role: user.role,
     },
     process.env.SECRET_KEY || "",

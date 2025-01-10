@@ -4,7 +4,6 @@ import {
   NFTContractService,
 } from "../../middleware/Contract/crawlNFTData";
 import { ShopContractService } from "../../middleware/Contract/crawlShopData";
-import { NFTDataModel } from "../../models/NFTData/NFTDataSchema";
 import { INFTShop, NFTShopModel } from "../../models/NFTData/NFTShopSchema";
 
 export async function syncNFTsToProducts() {
@@ -34,6 +33,14 @@ export async function syncNFTsToProducts() {
         continue;
       }
 
+      const existingProduct = await NFTShopModel.findOne({
+        tokenId: nft.tokenId,
+      });
+      if (existingProduct) {
+        console.info(`Product with tokenId ${nft.tokenId} already exists`);
+        continue;
+      }
+
       const newProduct: INFTShop = new NFTShopModel({
         tokenId: nft.tokenId,
         name: nft.name,
@@ -45,6 +52,7 @@ export async function syncNFTsToProducts() {
 
       try {
         await newProduct.save();
+        console.info(`Product with tokenId ${nft.tokenId} saved successfully`);
       } catch (saveError) {
         console.error(
           `Error saving product for tokenId: ${nft.tokenId}`,
@@ -87,7 +95,40 @@ export async function getAllProducts(req: Request) {
 
     return groupedProducts;
   } catch (error) {
-    console.error("🚀 ~ getAllProducts ~ error:", error);
     throw new Error("Failed to fetch grouped products");
+  }
+}
+
+export async function getProductByName(req: Request) {
+  try {
+    const { name } = req.query;
+    if (!name) {
+      throw new Error("Product name is required");
+    }
+
+    const products = await NFTShopModel.find({ name }).lean();
+
+    if (!products || products.length === 0) {
+      throw new Error("Product not found");
+    }
+
+    const { _id, description, price, image } = products[0];
+
+    const allSizes = products
+      .flatMap((product) => product.sizes)
+      .filter((size, index, self) => self.indexOf(size) === index);
+    const productDetails = {
+      productId: _id,
+      name,
+      description,
+      price,
+      image,
+      sizes: allSizes,
+    };
+
+    return productDetails;
+  } catch (error) {
+    console.error("🚀 ~ getProductByName ~ error:", error);
+    throw new Error("Failed to fetch product details");
   }
 }

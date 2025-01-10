@@ -1,5 +1,6 @@
 import { AuthModel, IAuthUser } from "../../models/AuthSchema";
 import { CartModel, ICart } from "../../models/Cart/CartSchema";
+import { NFTShopModel } from "../../models/NFTData/NFTShopSchema";
 import { SizeModel } from "../../models/Product/SizeSchema";
 import { ExtendedRequest } from "../type";
 
@@ -7,17 +8,7 @@ export async function createCartItem(request: ExtendedRequest) {
   try {
     const { userVerifiedData } = request;
 
-    const {
-      productId,
-      name,
-      price,
-      color,
-      size,
-      quantity,
-      image,
-      variantId,
-      sizeId,
-    } = request.body;
+    const { productId, name, price, size, image, quantity } = request.body;
 
     const author: IAuthUser | null = await AuthModel.findOne({
       userId: userVerifiedData?.userId,
@@ -27,15 +18,12 @@ export async function createCartItem(request: ExtendedRequest) {
       throw Error("Wrong author ID");
     }
 
-    if (
-      !(name && productId && quantity && size && color && sizeId && variantId)
-    ) {
+    if (!(name && productId && size)) {
       throw Error("Missing information");
     }
 
     const existingCart = await CartModel.findOne({
       productId: productId,
-      variantId: variantId,
     });
 
     if (existingCart) {
@@ -45,17 +33,14 @@ export async function createCartItem(request: ExtendedRequest) {
     const newCartItem: ICart = new CartModel({
       userId: userVerifiedData?.userId,
       productId,
-      variantId,
-      sizeId,
       name,
       price,
-      color,
       size,
-      quantity,
       image,
+      quantity,
     });
     await newCartItem.save();
-    return { productId, name, quantity, size, color, variantId };
+    return { productId, name, size };
   } catch (error) {
     throw error;
   }
@@ -70,11 +55,8 @@ export async function getCartItems(request: ExtendedRequest) {
   return res.map((item) => {
     return {
       productId: item.productId,
-      variantId: item.variantId,
-      sizeId: item.sizeId,
       name: item.name,
       price: item.price,
-      color: item.color,
       size: item.size,
       quantity: item.quantity,
       image: item.image,
@@ -102,56 +84,6 @@ export async function deleteCartItem(request: ExtendedRequest) {
   }
 }
 
-export async function checkQuantity(request: ExtendedRequest) {
-  try {
-    const { variantId, sizeId } = request.query;
-    const size = await SizeModel.findOne({
-      _id: sizeId,
-      variantId: variantId,
-    });
-    const cartItem = await CartModel.findOne({
-      variantId: variantId,
-      sizeId: sizeId,
-    });
-    if (
-      size?.stockQuantity &&
-      cartItem?.quantity &&
-      size?.stockQuantity < cartItem?.quantity
-    ) {
-      return false;
-    }
-    return true;
-  } catch (error) {
-    throw error;
-  }
-}
-
-export async function getCartPrice(request: ExtendedRequest) {
-  const { userVerifiedData } = request;
-  const cartItems = await CartModel.find({
-    userId: userVerifiedData?.userId,
-  });
-  let subTotal = 0;
-  for (const item of cartItems) {
-    const size = await SizeModel.findOne({
-      _id: item.sizeId,
-      variantId: item.variantId,
-    });
-    if (size?.stockQuantity && size.stockQuantity >= item.quantity) {
-      subTotal += item.price * item.quantity;
-    }
-  }
-  let fee = 0;
-  if (subTotal) {
-    fee = subTotal < 200 ? 10 : 0;
-  }
-  return {
-    subTotal: subTotal,
-    fee: fee,
-    total: subTotal + fee,
-  };
-}
-
 export async function getCheckout(request: ExtendedRequest) {
   try {
     const { userVerifiedData } = request;
@@ -160,16 +92,30 @@ export async function getCheckout(request: ExtendedRequest) {
     });
     let newCartItem = [];
     for (const item of cartItems) {
-      const size = await SizeModel.findOne({
-        _id: item.sizeId,
-        variantId: item.variantId,
+      const size = await NFTShopModel.findOne({
+        name: item.name,
+        sizes: item.size,
       });
-      if (size?.stockQuantity && size.stockQuantity >= item.quantity) {
+      if (size) {
         newCartItem.push(item);
       }
     }
     return newCartItem;
   } catch (error) {
+    throw error;
+  }
+}
+
+export async function getItemToBuy(request: ExtendedRequest) {
+  try {
+    const { name, size } = request.query;
+    const products = await NFTShopModel.findOne({
+      name: name,
+      sizes: size,
+    });
+    return products;
+  } catch (error) {
+    console.log("🚀 ~ getItemToBuy ~ error:", error);
     throw error;
   }
 }

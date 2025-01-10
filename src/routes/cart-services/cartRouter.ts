@@ -2,12 +2,11 @@ import express, { Response } from "express";
 import { verifyToken } from "../../middleware/auth";
 import { ExtendedRequest } from "../../controllers/type";
 import {
-  checkQuantity,
   createCartItem,
   deleteCartItem,
   getCartItems,
-  getCartPrice,
   getCheckout,
+  getItemToBuy,
 } from "../../controllers/cart-services/cartController";
 
 const router = express.Router();
@@ -63,40 +62,12 @@ router.delete(
 );
 
 router.get(
-  "/cart-price",
+  "/checkout",
   verifyToken,
   async (req: ExtendedRequest, res: Response) => {
     try {
-      const result = await getCartPrice(req);
+      const result = await getCheckout(req);
       res.send(result);
-    } catch (err: any) {
-      let message = "Unknown error";
-      if (err instanceof Error) {
-        message = err.message;
-      }
-      res.statusMessage = message;
-      res.status(400).end();
-    }
-  }
-);
-
-router.get(
-  "/check-quantity",
-  verifyToken,
-  async (req: ExtendedRequest, res: Response) => {
-    try {
-      const result = await checkQuantity(req);
-      if (result) {
-        res.json({
-          valid: true,
-          message: "Quantity is valid",
-        });
-      } else {
-        res.json({
-          valid: false,
-          message: "Cart item deleted successfully",
-        });
-      }
     } catch (error) {
       let message = "Unknown Error";
       if (error instanceof Error) {
@@ -109,11 +80,11 @@ router.get(
 );
 
 router.get(
-  "/checkout",
+  "/nft-checkout",
   verifyToken,
   async (req: ExtendedRequest, res: Response) => {
     try {
-      const result = await getCheckout(req);
+      const result = await getItemToBuy(req);
       res.send(result);
     } catch (error) {
       let message = "Unknown Error";
