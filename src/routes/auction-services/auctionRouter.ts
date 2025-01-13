@@ -4,6 +4,7 @@ import {
   getAllAuctions,
   getAuctionDetails,
   getUserListing,
+  getUserListingDetails,
   updateAuction,
 } from "../../controllers/auction-services/auctionController";
 import { verifyToken } from "../../middleware/auth";
@@ -73,5 +74,23 @@ router.post("/place-bid", verifyToken, async (req: Request, res: Response) => {
     res.status(400).end();
   }
 });
+
+router.get(
+  "/listing-detail",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      const result = await getUserListingDetails(req);
+      res.send(result);
+    } catch (err: any) {
+      let message = "Unknown error";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      res.statusMessage = message;
+      res.status(400).end();
+    }
+  }
+);
 
 export { router as auctionRouter };

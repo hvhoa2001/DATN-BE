@@ -14,7 +14,6 @@ export async function crawlAuctionData() {
     const nftContractService = new NFTContractService();
 
     const auctions = await auctionContractService.getAllAuction();
-    console.log("🚀 ~ crawlAuctionData ~ auctions:", auctions);
     const nfts = await nftContractService.getAllNFTs();
 
     if (!auctions || auctions.length === 0) {
@@ -133,6 +132,19 @@ export async function getUserListing(req: ExtendedRequest) {
   const res = await AuctionDataModel.find({
     seller: userVerifiedData?.userId,
     claimed: false,
+  });
+
+  return res;
+}
+
+export async function getUserListingDetails(req: ExtendedRequest) {
+  const { auctionId } = req.query;
+  const { userVerifiedData } = req;
+
+  const res = await AuctionDataModel.findOne({
+    seller: userVerifiedData?.userId,
+    claimed: false,
+    auctionId: auctionId,
   });
 
   return res;
