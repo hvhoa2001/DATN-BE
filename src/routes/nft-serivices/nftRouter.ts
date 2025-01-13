@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import {
+  BuyAndUpdate,
   crawlNFTData,
   getAllProducts,
   getProductByName,
@@ -84,6 +85,16 @@ router.get("/get-nft-detail", async (req: Request, res: Response) => {
       message = err.message;
     }
     res.status(400).end(message);
+  }
+});
+
+router.post("/update-nft", verifyToken, async (req: Request, res: Response) => {
+  try {
+    const result = await BuyAndUpdate(req);
+    res.status(200);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).end(err.message);
   }
 });
 

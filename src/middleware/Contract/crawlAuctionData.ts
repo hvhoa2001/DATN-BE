@@ -50,7 +50,7 @@ export class AuctionContractService {
             endTime: auction.auction.endTime.toNumber(),
             tokenId: auction.auction.tokenId.toNumber(),
             nftContract: auction.auction.nftAddress,
-            highBidder: auction.auction.highBidder,
+            highestBidder: auction.auction.highestBidder,
             highestBid: auction.auction.highestBid.div(1e6).toNumber(),
             claimed: auction.auction.claimed,
             paymentToken: auction.auction.paymentToken,

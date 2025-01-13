@@ -6,6 +6,7 @@ import {
 } from "../../models/Auction/AuctionSchema";
 import { NFTContractService } from "../../middleware/Contract/crawlNFTData";
 import { ExtendedRequest } from "../type";
+import { delay } from "../../middleware/auth";
 
 export async function crawlAuctionData() {
   try {
@@ -13,6 +14,7 @@ export async function crawlAuctionData() {
     const nftContractService = new NFTContractService();
 
     const auctions = await auctionContractService.getAllAuction();
+    console.log("🚀 ~ crawlAuctionData ~ auctions:", auctions);
     const nfts = await nftContractService.getAllNFTs();
 
     if (!auctions || auctions.length === 0) {
@@ -39,7 +41,7 @@ export async function crawlAuctionData() {
         endTime: auction.endTime,
         tokenId: auction.tokenId,
         nftContract: auction.nftContract,
-        highBidder: auction.highBidder,
+        highestBidder: auction.highestBidder,
         highestBid: auction.highestBid,
         claimed: Boolean(auction.claimed),
         image: nft.image,
@@ -78,6 +80,26 @@ export async function getAllAuctions() {
   } catch (error) {
     console.error("🚀 ~ getAllAuctions ~ error:", error);
     throw new Error("Failed to fetch ongoing auctions");
+  }
+}
+
+export async function updateAuction(req: Request) {
+  try {
+    await delay(10000);
+    const { auctionId } = req.body;
+    const auctionContractService = new AuctionContractService();
+    const auctions = await auctionContractService.getAllAuction();
+
+    const isAuctionId = auctions.some(
+      (auction: any) => auction.auctionId === Number(auctionId)
+    );
+    if (isAuctionId) {
+      await AuctionDataModel.deleteOne({ auctionId });
+      await crawlAuctionData();
+    }
+  } catch (error) {
+    console.error("🚀 ~ updateAuction ~ error:", error);
+    throw new Error("Failed to update auction");
   }
 }
 

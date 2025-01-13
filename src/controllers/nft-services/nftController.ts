@@ -7,6 +7,7 @@ import { ShopContractService } from "../../middleware/Contract/crawlShopData";
 import { INFTShop, NFTShopModel } from "../../models/NFTData/NFTShopSchema";
 import { INFTData, NFTDataModel } from "../../models/NFTData/NFTDataSchema";
 import { ExtendedRequest } from "../type";
+import { delay } from "../../middleware/auth";
 
 export async function crawlNFTData() {
   try {
@@ -109,6 +110,28 @@ export async function syncNFTsToProducts() {
   } catch (error) {
     console.error("🚀 ~ syncNFTsToProducts ~ error:", error);
     throw Error("Sync failed");
+  }
+}
+
+export async function BuyAndUpdate(req: Request) {
+  try {
+    await delay(10000);
+    const { tokenId } = req.body;
+    const shopContractService = new ShopContractService();
+    const listings = (await shopContractService.getAllListing()).filter(
+      (listing) => listing != null
+    );
+
+    const isTokenIdInListings = listings.some(
+      (listing) => listing.tokenId === tokenId
+    );
+
+    if (!isTokenIdInListings) {
+      const res = await NFTShopModel.deleteOne({ tokenId });
+      return res;
+    }
+  } catch (error) {
+    throw new Error("Failed to fetch grouped products");
   }
 }
 

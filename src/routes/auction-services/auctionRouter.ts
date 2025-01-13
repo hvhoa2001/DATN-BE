@@ -4,22 +4,23 @@ import {
   getAllAuctions,
   getAuctionDetails,
   getUserListing,
+  updateAuction,
 } from "../../controllers/auction-services/auctionController";
 import { verifyToken } from "../../middleware/auth";
 
 const router: Router = express.Router();
 
-router.post("/crawl-auction", async (res: Response) => {
+router.post("/crawl-auction", async (_req: Request, res: Response) => {
   try {
     const result = await crawlAuctionData();
     res.status(200).json(result);
   } catch (err: any) {
-    console.error("Error syncing NFT:", err.message);
-    res.status(400).json({ error: err.message });
+    res.status(400);
+    res.end(err.message);
   }
 });
 
-router.get("/get-auction", async (req: Request, res: Response) => {
+router.get("/get-auction", async (_req: Request, res: Response) => {
   try {
     const result = await getAllAuctions();
     res.send(result);
@@ -48,6 +49,20 @@ router.get("/get-auction-detail", async (req: Request, res: Response) => {
 router.get("/get-listing", verifyToken, async (req: Request, res: Response) => {
   try {
     const result = await getUserListing(req);
+    res.send(result);
+  } catch (err: any) {
+    let message = "Unknown error";
+    if (err instanceof Error) {
+      message = err.message;
+    }
+    res.statusMessage = message;
+    res.status(400).end();
+  }
+});
+
+router.post("/place-bid", verifyToken, async (req: Request, res: Response) => {
+  try {
+    const result = await updateAuction(req);
     res.send(result);
   } catch (err: any) {
     let message = "Unknown error";

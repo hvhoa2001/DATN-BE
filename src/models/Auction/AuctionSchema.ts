@@ -9,7 +9,7 @@ export interface IAuctionData extends Document {
   endTime: number;
   tokenId: number;
   nftContract: string;
-  highBidder: string;
+  highestBidder: string;
   highestBid: number;
   claimed: boolean;
   image: string;
@@ -27,7 +27,7 @@ const AuctionDataSchema: Schema = new Schema<IAuctionData>({
   endTime: { type: Number, required: true },
   tokenId: { type: Number, required: true },
   nftContract: { type: String, required: true },
-  highBidder: { type: String, required: false },
+  highestBidder: { type: String, required: false },
   highestBid: { type: Number, required: false },
   claimed: { type: Boolean, required: true },
   image: { type: String, required: true },
