@@ -3,6 +3,8 @@ import {
   crawlAuctionData,
   getAllAuctions,
   getAuctionDetails,
+  getMakeOffer,
+  getMakeOfferDetail,
   getUserListing,
   getUserListingDetails,
   updateAuction,
@@ -81,6 +83,42 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const result = await getUserListingDetails(req);
+      res.send(result);
+    } catch (err: any) {
+      let message = "Unknown error";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      res.statusMessage = message;
+      res.status(400).end();
+    }
+  }
+);
+
+router.get(
+  "/get-make-offer",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      const result = await getMakeOffer(req);
+      res.send(result);
+    } catch (err: any) {
+      let message = "Unknown error";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      res.statusMessage = message;
+      res.status(400).end();
+    }
+  }
+);
+
+router.get(
+  "/get-make-offer-detail",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      const result = await getMakeOfferDetail(req);
       res.send(result);
     } catch (err: any) {
       let message = "Unknown error";

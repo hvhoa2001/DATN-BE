@@ -149,3 +149,25 @@ export async function getUserListingDetails(req: ExtendedRequest) {
 
   return res;
 }
+
+export async function getMakeOffer(req: ExtendedRequest) {
+  const { userVerifiedData } = req;
+
+  const res = await AuctionDataModel.find({
+    highestBidder: userVerifiedData?.userId,
+    claimed: false,
+  });
+  return res;
+}
+
+export async function getMakeOfferDetail(req: ExtendedRequest) {
+  const { auctionId } = req.query;
+  const { userVerifiedData } = req;
+
+  const res = await AuctionDataModel.findOne({
+    highestBidder: userVerifiedData?.userId,
+    claimed: false,
+    auctionId: auctionId,
+  });
+  return res;
+}

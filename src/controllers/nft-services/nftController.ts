@@ -202,6 +202,25 @@ export async function getProductByName(req: Request) {
   }
 }
 
+export async function claimNFT(req: ExtendedRequest) {
+  try {
+    await delay(10000);
+    const { tokenId } = req.body;
+    const nftContractService = new NFTContractService();
+    const nfts = await nftContractService.getAllNFTs();
+
+    const isTokenIdNFTs = nfts.some((nfts: any) => nfts.tokenId === tokenId);
+
+    if (isTokenIdNFTs) {
+      await NFTDataModel.deleteOne({ tokenId });
+      await crawlNFTData();
+    }
+  } catch (error) {
+    console.error("🚀 ~ claimNFT ~ error:", error);
+    throw new Error("Failed to claim NFT");
+  }
+}
+
 export async function getUserNFTs(req: ExtendedRequest) {
   const { userVerifiedData } = req;
   const res = await NFTDataModel.find({ owner: userVerifiedData?.userId });
